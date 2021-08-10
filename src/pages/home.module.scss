@@ -1,1 +1,27 @@
-// TODO
+.posts {
+  a {
+    display: block;
+    
+    & + a {
+      margin-top: 2rem;
+    }
+  }
+  
+  p, span, icon {
+    color: var(--gray-300);
+  }
+  p {
+    margin: .5rem 0;
+  }
+
+}
+
+.postDetails {
+  display: flex;
+  p {
+    margin-right: 1rem;
+  }
+  span {
+    margin: 0 .5rem;
+  }
+}
