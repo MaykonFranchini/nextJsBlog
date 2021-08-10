@@ -1,3 +1,12 @@
-export default function Header() {
-  // TODO
+import LogoImg from '../../../public/images/logo.svg';
+import styles from './header.module.scss';
+
+export default function Header(): JSX.Element {
+  return (
+    <header className={styles.headerContainer}>
+      <div className={styles.headerContent}>
+        <img src={LogoImg} alt="logo" />
+      </div>
+    </header>
+  );
 }
