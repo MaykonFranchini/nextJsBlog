@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import { format } from 'date-fns';
 import ptUK from 'date-fns/locale/en-GB';
+import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 import Header from '../components/Header';
@@ -22,10 +23,6 @@ interface Post {
   };
 }
 
-interface PostsProps {
-  posts: Post[];
-}
-
 interface PostPagination {
   next_page: string;
   results: Post[];
@@ -35,7 +32,37 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
-export default function Home({ posts }: PostsProps): JSX.Element {
+export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+
+  async function handleNextPage() {
+    if (nextPage === null) {
+      return;
+    }
+
+    const response = await fetch(nextPage);
+    const postResult = await response.json();
+
+    const newPosts = postResult.results.map(post => {
+      return {
+        slug: post.uid,
+        first_publication_date: format(
+          new Date(post.first_publication_date),
+          'dd LLLL yyyy',
+          { locale: ptUK }
+        ),
+        data: {
+          title: post.data.title,
+          subtitle: post.data.subtitle,
+          author: post.data.author,
+        },
+      };
+    });
+    setNextPage(postResult.next_page);
+    setPosts([...posts, ...newPosts]);
+  }
+
   return (
     <>
       <Header />
@@ -59,6 +86,11 @@ export default function Home({ posts }: PostsProps): JSX.Element {
               </a>
             </Link>
           ))}
+          {nextPage && (
+            <button type="button" onClick={handleNextPage}>
+              Load more
+            </button>
+          )}
         </div>
       </main>
     </>
@@ -71,7 +103,7 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.Predicates.at('document.type', 'post')],
     {
       fetch: ['post.title', 'post.subtitle', 'post.author', 'post.content'],
-      pageSize: 3,
+      pageSize: 2,
     }
   );
   // console.log(JSON.stringify(postsResponse, null, 2));
@@ -93,6 +125,11 @@ export const getStaticProps: GetStaticProps = async () => {
   });
 
   return {
-    props: { posts },
+    props: {
+      postsPagination: {
+        results: posts,
+        next_page: postsResponse.next_page,
+      },
+    },
   };
 };
