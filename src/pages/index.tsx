@@ -4,7 +4,7 @@ import Prismic from '@prismicio/client';
 import Link from 'next/link';
 
 import { format } from 'date-fns';
-import ptUK from 'date-fns/locale/en-GB';
+import ptBR from 'date-fns/locale/pt-BR';
 import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
@@ -14,7 +14,7 @@ import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 
 interface Post {
-  slug?: string;
+  uid?: string;
   first_publication_date: string | null;
   data: {
     title: string;
@@ -40,18 +40,13 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
     if (nextPage === null) {
       return;
     }
-
     const response = await fetch(nextPage);
     const postResult = await response.json();
 
     const newPosts = postResult.results.map(post => {
       return {
-        slug: post.uid,
-        first_publication_date: format(
-          new Date(post.first_publication_date),
-          'dd LLLL yyyy',
-          { locale: ptUK }
-        ),
+        uid: post.uid,
+        first_publication_date: post.first_publication_date,
         data: {
           title: post.data.title,
           subtitle: post.data.subtitle,
@@ -69,14 +64,20 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       <main className={commonStyles.containerPage}>
         <div className={styles.posts}>
           {posts.map(post => (
-            <Link key={post.slug} href={`post/${post.slug}`}>
+            <Link key={post.uid} href={`post/${post.uid}`}>
               <a>
                 <h2>{post.data.title}</h2>
                 <p>{post.data.subtitle}</p>
                 <div className={styles.postDetails}>
                   <p>
                     <FiCalendar />
-                    <span>{post.first_publication_date}</span>
+                    <span>
+                      {format(
+                        new Date(post.first_publication_date),
+                        'dd MMM yyyy',
+                        { locale: ptBR }
+                      )}
+                    </span>
                   </p>
                   <p>
                     <FiUser />
@@ -88,7 +89,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
           ))}
           {nextPage && (
             <button type="button" onClick={handleNextPage}>
-              Load more
+              Carregar mais posts
             </button>
           )}
         </div>
@@ -110,12 +111,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const posts = postsResponse.results.map(post => {
     return {
-      slug: post.uid,
-      first_publication_date: format(
-        new Date(post.first_publication_date),
-        'dd LLLL yyyy',
-        { locale: ptUK }
-      ),
+      uid: post.uid,
+      first_publication_date: post.first_publication_date,
       data: {
         title: post.data.title,
         subtitle: post.data.subtitle,

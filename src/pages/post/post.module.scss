@@ -1,1 +1,41 @@
-// TODO
+.banner {
+  height:400px;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: block;
+
+}
+
+.post {
+  h1 {
+    margin-top: 2rem;
+  }
+  p, icon, li {
+    color: var(--gray-300);
+  }
+
+  h2 {
+    margin-bottom: 2rem;
+  }
+
+  .boxContent {
+    margin: 1rem 0;
+  }
+
+  p {
+    & + p {
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.postDetails {
+  margin: 1rem 0;
+  display: flex;
+  p {
+    margin-right: 1rem;
+  }
+  span {
+    margin: 0 .5rem;
+  }
+}
